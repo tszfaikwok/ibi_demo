@@ -242,7 +242,7 @@
 
 <script>
 const APP_ID = 'd7025492-1b4f-4fda-b6a4-4e8dba471d98';
-const BASE = location.hostname === 'localhost' ? '/proxy/rest/app' : 'https://api.mingdao.com/rest/app';
+const BASE = location.hostname === 'localhost' ? '/proxy' : 'https://api.mingdao.com';
 
 // Worksheet IDs
 const WS = {
@@ -304,14 +304,11 @@ function relName(val, type, cache) {
 
 // Fetch master data for display name resolution
 async function loadMasters() {
-  const [projects, clients, employees, subs, categories] = await Promise.all([
+  const [projects, clients] = await Promise.all([
     hapFetch(WS.project, ['biz_project_code', 'biz_client', 'biz_project_name']),
     hapFetch(WS.client),
-    hapFetch(WS.employee),
-    hapFetch(WS.subcontractor),
-    hapFetch(WS.costCategory),
   ]);
-  return { projects, clients, employees, subs, categories };
+  return { projects, clients };
 }
 
 // Current user
@@ -319,7 +316,7 @@ async function loadUser() {
   try {
     const res = await fetch(`${BASE}/rest/app/${APP_ID}/user/current`, { credentials: 'include' });
     const json = await res.json();
-    if (json.success && json.data) $('topbar-user-name').textContent = json.data.fullname || 'User';
+    if (json.success && json.data) $('topbar-user-name').textContent = json.data.name || json.data.fullname || 'User';
   } catch(e) { $('topbar-user-name').textContent = 'User'; }
 }
 

@@ -1,26 +1,61 @@
-node:events:487
-      throw er; // Unhandled 'error' event
-      ^
-
-Error: listen EADDRINUSE: address already in use :::3000
-    at Server.setupListenHandle [as _listen2] (node:net:2008:16)
-    at listenInCluster (node:net:2065:12)
-    at Server.listen (node:net:2170:7)
-    at app.listen (C:\Users\kwokt\OneDrive\Fujifilm\prospects\ibi\node_modules\express\lib\application.js:635:24)
-    at Object.<anonymous> (C:\Users\kwokt\OneDrive\Fujifilm\prospects\ibi\server.js:33:5)
-    at Module._compile (node:internal/modules/cjs/loader:1830:14)
-    at Object..js (node:internal/modules/cjs/loader:1961:10)
-    at Module.load (node:internal/modules/cjs/loader:1553:32)
-    at Module._load (node:internal/modules/cjs/loader:1355:12)
-    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
-Emitted 'error' event on Server instance at:
-    at emitErrorNT (node:net:2044:8)
-    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
-  code: 'EADDRINUSE',
-  errno: -4091,
-  syscall: 'listen',
-  address: '::',
-  port: 3000
-}
-
-Node.js v24.15.0
+Starting proxy server on http://localhost:3000
+ * Serving Flask app 'server'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:3000
+ * Running on http://192.168.50.160:3000
+Press CTRL+C to quit
+127.0.0.1 - - [06/Oct/2026 19:21:31] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=2&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:00] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=5&pageIndex=1 HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:16] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=5&pageIndex=1 HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:33] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 19:23:33] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [06/Oct/2026 19:23:33] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/user/current HTTP/1.1" 404 -
+127.0.0.1 - - [06/Oct/2026 19:23:35] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c171540bccbfe2ba835f/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:35] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=500&pageIndex=1&responseFormat=json&fields=biz_project_code,biz_client,biz_project_name HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:35] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c1705a60256b49e5460f/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:35] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/undefined/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:35] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0ccac0bbb2374b1b848/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:35] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c1714d3dd6ae28508c09/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:35] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c172540bccbfe2ba836b/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:35] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c215657912d1703a38f2/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:35] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c228657912d1703a394a/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:35] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c2284d3dd6ae28509352/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:35] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c214386277de3c274bd9/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:35] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/undefined/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:36] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/undefined/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:36] "GET / HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 19:23:36] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [06/Oct/2026 19:23:36] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/user/current HTTP/1.1" 404 -
+127.0.0.1 - - [06/Oct/2026 19:23:37] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0ccac0bbb2374b1b848/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:37] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c1705a60256b49e5460f/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:37] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c1714d3dd6ae28508c09/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:37] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=500&pageIndex=1&responseFormat=json&fields=biz_project_code,biz_client,biz_project_name HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:37] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/undefined/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:37] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c171540bccbfe2ba835f/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:38] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c228657912d1703a394a/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:38] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c214386277de3c274bd9/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:38] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c172540bccbfe2ba836b/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:38] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c2284d3dd6ae28509352/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:38] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/undefined/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:38] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c215657912d1703a38f2/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:23:39] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/undefined/record?pageSize=500&pageIndex=1&responseFormat=json HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:24:13] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=5&pageIndex=1 HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:24:30] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 19:24:56] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=5&pageIndex=1 HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:25:06] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=5&pageIndex=1 HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:25:14] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=5&pageIndex=1 HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:25:30] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=5&pageIndex=1 HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:25:40] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=5&pageIndex=1 HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:26:02] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=5&pageIndex=1 HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:26:43] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=5&pageIndex=1 HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:27:12] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=5&pageIndex=1 HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:27:44] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=5&pageIndex=1 HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:28:00] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=5&pageIndex=1 HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:28:11] "GET /proxy/rest/app/test/worksheet/test/record HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:28:42] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=5&pageIndex=1 HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:29:30] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=5&pageIndex=1 HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:29:58] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=5&pageIndex=1 HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:30:29] "GET /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record?pageSize=5&pageIndex=1 HTTP/1.1" 401 -
+127.0.0.1 - - [06/Oct/2026 19:30:46] "OPTIONS /proxy/rest/app/d7025492-1b4f-4fda-b6a4-4e8dba471d98/worksheet/6ac4c0e7a321f99feba224a0/record HTTP/1.1" 200 -
