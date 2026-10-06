@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IBI Construction PM</title>
+<style>
+  :root {
+    --primary: #1a3a5c;
+    --primary-light: #2c5282;
+    --accent: #3182ce;
+    --bg: #f7fafc;
+    --card: #ffffff;
+    --text: #1a202c;
+    --muted: #718096;
+    --border: #e2e8f0;
+    --success: #38a169;
+    --warning: #d69e2e;
+    --danger: #e53e3e;
+    --info: #3182ce;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar { width: 240px; background: var(--primary); color: white; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+  .sidebar-brand { padding: 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .sidebar-brand h1 { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
+  .sidebar-brand span { font-size: 11px; opacity: 0.7; display: block; margin-top: 2px; }
+  .sidebar-nav { flex: 1; padding: 8px 0; overflow-y: auto; }
+  .nav-section { padding: 8px 16px 4px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.5; margin-top: 8px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; cursor: pointer; font-size: 13px; transition: background 0.15s; border-radius: 0; }
+  .nav-item:hover { background: rgba(255,255,255,0.1); }
+  .nav-item.active { background: rgba(255,255,255,0.15); border-left: 3px solid #63b3ed; padding-left: 13px; }
+  .nav-item .icon { width: 18px; text-align: center; font-size: 14px; }
+  .sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 11px; opacity: 0.6; }
+
+  /* Main */
+  .main { flex: 1; margin-left: 240px; display: flex; flex-direction: column; min-height: 100vh; }
+  .topbar { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+  .topbar-title { font-size: 15px; font-weight: 600; color: var(--text); }
+  .topbar-user { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .topbar-user img { width: 28px; height: 28px; border-radius: 50%; }
+  .content { flex: 1; padding: 24px; }
+
+  /* KPI Cards */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .kpi-card { background: var(--card); border-radius: 8px; padding: 16px 20px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 6px; }
+  .kpi-value { font-size: 24px; font-weight: 700; color: var(--text); }
+  .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .kpi-value.green { color: var(--success); }
+  .kpi-value.red { color: var(--danger); }
+  .kpi-value.blue { color: var(--info); }
+  .kpi-value.orange { color: var(--warning); }
+
+  /* Section */
+  .section { display: none; }
+  .section.active { display: block; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .section-title { font-size: 16px; font-weight: 600; }
+
+  /* Table */
+  .table-card { background: var(--card); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
+  .table-wrapper { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead { background: #f8fafc; }
+  th { padding: 10px 14px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8fafc; }
+
+  /* Badges */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: #c6f6d5; color: #22543d; }
+  .badge-blue { background: #bee3f8; color: #2a4365; }
+  .badge-yellow { background: #fefcbf; color: #744210; }
+  .badge-red { background: #fed7d7; color: #742a2a; }
+  .badge-gray { background: #e2e8f0; color: #4a5568; }
+  .badge-orange { background: #feebc8; color: #7c2d12; }
+
+  /* Loading & Error */
+  .loading { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; }
+  .loading .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-msg { background: #fff5f5; border: 1px solid #fed7d7; border-radius: 6px; padding: 12px 16px; color: var(--danger); font-size: 13px; margin-bottom: 16px; }
+  .empty-state { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
+
+  /* Charts area */
+  .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .chart-title { font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--text); }
+  .bar-chart { display: flex; flex-direction: column; gap: 8px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; }
+  .bar-label { width: 120px; font-size: 12px; color: var(--muted); text-align: right; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 20px; background: #f1f5f9; border-radius: 4px; overflow: hidden; position: relative; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .bar-val { font-size: 11px; color: var(--muted); width: 90px; flex-shrink: 0; }
+
+  /* Filter bar */
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-btn { padding: 5px 12px; border: 1px solid var(--border); border-radius: 20px; font-size: 12px; cursor: pointer; background: var(--card); color: var(--muted); transition: all 0.15s; }
+  .filter-btn:hover, .filter-btn.active { border-color: var(--accent); color: var(--accent); background: #ebf8ff; }
+
+  /* Status dot */
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .dot-green { background: var(--success); }
+  .dot-yellow { background: var(--warning); }
+  .dot-red { background: var(--danger); }
+  .dot-blue { background: var(--info); }
+  .dot-gray { background: var(--muted); }
+
+  /* Cost plan columns */
+  .cost-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0; }
+  .cost-col { padding: 8px 10px; font-size: 11px; text-align: center; border-right: 1px solid var(--border); }
+  .cost-col:last-child { border-right: none; }
+  .cost-col-header { font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px; padding-bottom: 6px; border-bottom: 2px solid var(--border); margin-bottom: 6px; }
+  .cost-val { font-weight: 600; font-size: 12px; }
+  .cost-var-pos { color: var(--success); }
+  .cost-var-neg { color: var(--danger); }
+  .cost-row-label { font-size: 12px; font-weight: 500; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .sidebar { width: 56px; }
+    .sidebar-brand h1, .sidebar-brand span, .nav-section, .nav-item span, .sidebar-footer { display: none; }
+    .nav-item { justify-content: center; padding: 12px; }
+    .nav-item.active { border-left: none; border-bottom: 3px solid #63b3ed; padding-left: 12px; }
+    .main { margin-left: 56px; }
+    .chart-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <h1>IBI Construction</h1>
+    <span>Project Management System</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Overview</div>
+    <div class="nav-item active" data-section="dashboard"><span class="icon">&#9632;</span><span>Dashboard</span></div>
+    <div class="nav-section">Financial</div>
+    <div class="nav-item" data-section="cost-plan"><span class="icon">&#9650;</span><span>Cost Plan</span></div>
+    <div class="nav-item" data-section="purchase-orders"><span class="icon">&#9744;</span><span>Purchase Orders</span></div>
+    <div class="nav-item" data-section="claims"><span class="icon">&#9830;</span><span>Progress Claims</span></div>
+    <div class="nav-item" data-section="variations"><span class="icon">&#9734;</span><span>Variation Orders</span></div>
+    <div class="nav-section">Operations</div>
+    <div class="nav-item" data-section="risks"><span class="icon">&#9888;</span><span>Risk2Do</span></div>
+    <div class="nav-item" data-section="milestones"><span class="icon">&#9733;</span><span>Milestones</span></div>
+    <div class="nav-item" data-section="timesheets"><span class="icon">&#9660;</span><span>Timesheets</span></div>
+    <div class="nav-item" data-section="expenses"><span class="icon">&#9829;</span><span>Expense Claims</span></div>
+  </nav>
+  <div class="sidebar-footer">
+    Powered by HAP &middot; Live Data
+  </div>
+</aside>
+
+<!-- Main Content -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-user">
+      <img src="https://p1.mingdaoyun.cn/UserAvatar/default2.png?watermark/2/text/dA==/font/5oCd5rqQ6buR5L2T/fontsize/1000/fill/d2hpdGU=/dissolve/100/gravity/Center/dx/0/dy/0/fontstyle/Ym9sZA==%7CimageView2/1/w/48/h/48/q/90" alt="avatar">
+      <span id="topbar-user-name">Loading...</span>
+    </div>
+  </header>
+
+  <div class="content">
+    <!-- DASHBOARD -->
+    <div class="section active" id="sec-dashboard">
+      <div class="kpi-grid" id="kpi-grid"></div>
+      <div class="chart-row">
+        <div class="chart-card">
+          <div class="chart-title">Budget vs Final Forecast</div>
+          <div class="bar-chart" id="chart-budget"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Risk Exposure Summary</div>
+          <div class="bar-chart" id="chart-risk"></div>
+        </div>
+      </div>
+      <div class="table-card">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;">Recent Purchase Orders</div>
+        <div class="table-wrapper"><table><thead><tr><th>PO No.</th><th>Supplier</th><th>Category</th><th>Total (HKD)</th><th>Status</th><th>Due</th></tr></thead><tbody id="dash-po-tbody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- COST PLAN -->
+    <div class="section" id="sec-cost-plan">
+      <div class="section-header"><div class="section-title">Cost Plan Lines</div></div>
+      <div class="table-card">
+        <div class="table-wrapper"><table><thead><tr><th>Code</th><th>Description</th><th>Orig. Budget</th><th>Adj. Budget</th><th>Allocated</th><th>Committed</th><th>Final Forecast</th><th>Variance</th><th>%</th></tr></thead><tbody id="cp-tbody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- PURCHASE ORDERS -->
+    <div class="section" id="sec-purchase-orders">
+      <div class="section-header"><div class="section-title">Purchase Orders</div><div class="filter-bar" id="po-filters"></div></div>
+      <div class="table-card"><div class="table-wrapper"><table><thead><tr><th>PO No.</th><th>Project</th><th>Supplier</th><th>Category</th><th>Scope</th><th>Total (HKD)</th><th>Payment Terms</th><th>Delivery</th><th>Status</th></tr></thead><tbody id="po-tbody"></tbody></table></div></div>
+    </div>
+
+    <!-- CLAIMS -->
+    <div class="section" id="sec-claims">
+      <div class="section-header"><div class="section-title">Progress Claims</div><div class="filter-bar" id="claim-filters"></div></div>
+      <div class="table-card"><div class="table-wrapper"><table><thead><tr><th>Claim No.</th><th>Project</th><th>Interim No.</th><th>Date</th><th>Gross (HKD)</th><th>Retention</th><th>Net (HKD)</th><th>Cum. Billed</th><th>Cum. %</th><th>Status</th></tr></thead><tbody id="claim-tbody"></tbody></table></div></div>
+    </div>
+
+    <!-- VARIATIONS -->
+    <div class="section" id="sec-variations">
+      <div class="section-header"><div class="section-title">Variation Orders</div><div class="filter-bar" id="vo-filters"></div></div>
+      <div class="table-card"><div class="table-wrapper"><table><thead><tr><th>VO No.</th><th>Project</th><th>Type</th><th>Date</th><th>Description</th><th>Cost (+)</th><th>Cost (-)</th><th>Net Impact</th><th>Billing</th><th>Approved By</th></tr></thead><tbody id="vo-tbody"></tbody></table></div></div>
+    </div>
+
+    <!-- RISKS -->
+    <div class="section" id="sec-risks">
+      <div class="section-header"><div class="section-title">Risk2Do Tracker</div><div class="filter-bar" id="risk-filters"></div></div>
+      <div class="table-card"><div class="table-wrapper"><table><thead><tr><th>Risk #</th><th>Project</th><th>Category</th><th>Severity</th><th>Description</th><th>Provided</th><th>Worst Case</th><th>Opportunity</th><th>Identified</th><th>Closed</th><th>Status</th></tr></thead><tbody id="risk-tbody"></tbody></table></div></div>
+    </div>
+
+    <!-- MILESTONES -->
+    <div class="section" id="sec-milestones">
+      <div class="section-header"><div class="section-title">Project Milestones</div></div>
+      <div class="table-card"><div class="table-wrapper"><table><thead><tr><th>Milestone</th><th>Project</th><th>Planned</th><th>Actual</th><th>Delay (Days)</th><th>Status</th></tr></thead><tbody id="ms-tbody"></tbody></table></div></div>
+    </div>
+
+    <!-- EXPENSES -->
+    <div class="section" id="sec-expenses">
+      <div class="section-header"><div class="section-title">Expense Claims</div></div>
+      <div class="table-card"><div class="table-wrapper"><table><thead><tr><th>Expense ID</th><th>Project</th><th>Employee</th><th>Date</th><th>Type</th><th>Amount (HKD)</th><th>Currency</th><th>Receipt</th><th>Status</th></tr></thead><tbody id="exp-tbody"></tbody></table></div></div>
+    </div>
+
+    <!-- TIMESHEETS -->
+    <div class="section" id="sec-timesheets">
+      <div class="section-header"><div class="section-title">Timesheets</div><div class="filter-bar" id="ts-filters"></div></div>
+      <div class="table-card"><div class="table-wrapper"><table><thead><tr><th>TS No.</th><th>Project</th><th>Employee</th><th>Date</th><th>Activity</th><th>Hours</th><th>Status</th></tr></thead><tbody id="ts-tbody"></tbody></table></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const APP_ID = 'd7025492-1b4f-4fda-b6a4-4e8dba471d98';
+const BASE = location.hostname === 'localhost' ? '/proxy/rest/app' : 'https://api.mingdao.com/rest/app';
+
+// Worksheet IDs
+const WS = {
+  project: '6ac4c0e7a321f99feba224a0',
+  client: '6ac4c0ccac0bbb2374b1b848',
+  costPlan: '6ac4c1705a60256b49e5460f',
+  po: '6ac4c171540bccbfe2ba835f',
+  claim: '6ac4c1714d3dd6ae28508c09',
+  vo: '6ac4c172540bccbfe2ba836b',
+  risk: '6ac4c214386277de3c274bd9',
+  milestone: '6ac4c228657912d1703a394a',
+  expense: '6ac4c2284d3dd6ae28509352',
+  timesheet: '6ac4c215657912d1703a38f2',
+  tasks: '6ac4c23dba5974aa2f2913ad',
+  team: '6ac4c23d1b329e0622f7d18c',
+  docRepo: '6ac4c170ac0bbb2374b1bb3c',
+  voBilling: '6ac4c215ac0bbb2374b1bd56',
+};
+
+// UI helpers
+const $ = id => document.getElementById(id);
+const fmt = n => { if (n === null || n === undefined || n === '') return '—'; const num = parseFloat(n); return isNaN(num) ? String(n) : num.toLocaleString('en-HK', {minimumFractionDigits: 2, maximumFractionDigits: 2}); };
+const fmtInt = n => { if (n === null || n === undefined || n === '') return '—'; const num = parseFloat(n); return isNaN(num) ? String(n) : num.toLocaleString('en-HK'); };
+const dateStr = d => d ? String(d).substring(0,10) : '—';
+const badgeClass = s => {
+  const map = {'Approved':'green','Paid':'green','Delivered':'green','Closed':'green','Active':'green','Completed':'green','Fully Billed':'green',
+    'Submitted':'blue','In Progress':'blue','Partially Billed':'blue','Planned':'blue','Forecast':'blue',
+    'Draft':'gray','Not Billed':'gray',
+    'Rejected':'red','Delayed':'red','High':'red','In Transit':'orange',
+    'Identified':'orange','Medium':'orange','Low':'orange','Under Review':'orange'};
+  return map[s] || 'gray';
+};
+const statusText = v => Array.isArray(v) ? v.map(x=>x.value).join(', ') : (v||'—');
+const selectText = v => Array.isArray(v) ? v.map(x=>x.value).join(', ') : (v||'—');
+
+// Fetch from HAP
+async function hapFetch(wsId, fields, filter) {
+  let url = `${BASE}/rest/app/${APP_ID}/worksheet/${wsId}/record?pageSize=500&pageIndex=1&responseFormat=json`;
+  if (fields) url += `&fields=${fields.join(',')}`;
+  if (filter) url += `&filter=${encodeURIComponent(JSON.stringify(filter))}`;
+  const res = await fetch(url, { credentials: 'include' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = await res.json();
+  if (!json.success) throw new Error(json.error_msg || 'API error');
+  return json.data.rows || [];
+}
+
+// Resolve relation field to display name using cached master data
+function relName(val, type, cache) {
+  if (!val) return '—';
+  const arr = Array.isArray(val) ? val : [val];
+  return arr.map(r => {
+    if (typeof r === 'string') return r;
+    if (r.value) return r.value;
+    const key = Object.keys(r).find(k => k.toLowerCase() === 'name' || k.toLowerCase() === 'title');
+    return key ? r[key] : JSON.stringify(r);
+  }).join(', ');
+}
+
+// Fetch master data for display name resolution
+async function loadMasters() {
+  const [projects, clients, employees, subs, categories] = await Promise.all([
+    hapFetch(WS.project, ['biz_project_code', 'biz_client', 'biz_project_name']),
+    hapFetch(WS.client),
+    hapFetch(WS.employee),
+    hapFetch(WS.subcontractor),
+    hapFetch(WS.costCategory),
+  ]);
+  return { projects, clients, employees, subs, categories };
+}
+
+// Current user
+async function loadUser() {
+  try {
+    const res = await fetch(`${BASE}/rest/app/${APP_ID}/user/current`, { credentials: 'include' });
+    const json = await res.json();
+    if (json.success && json.data) $('topbar-user-name').textContent = json.data.fullname || 'User';
+  } catch(e) { $('topbar-user-name').textContent = 'User'; }
+}
+
+// Navigation
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    item.classList.add('active');
+    const sec = item.dataset.section;
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    $(`sec-${sec}`).classList.add('active');
+    const titles = {'dashboard':'Dashboard','cost-plan':'Cost Plan','purchase-orders':'Purchase Orders','claims':'Progress Claims','variations':'Variation Orders','risks':'Risk2Do Tracker','milestones':'Project Milestones','timesheets':'Timesheets','expenses':'Expense Claims'};
+    $('topbar-title').textContent = titles[sec] || 'Dashboard';
+  });
+});
+
+// Filter bars
+function buildFilters(containerId, options, onChange) {
+  const c = $(containerId);
+  if (!c) return;
+  const all = [{label:'All', value:''}];
+  options.forEach(o => all.push({label:o.label, value:o.value}));
+  all.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn' + (i===0?' active':'');
+    btn.textContent = opt.label;
+    btn.onclick = () => {
+      c.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      onChange(opt.value);
+    };
+    c.appendChild(btn);
+  });
+}
+
+// ========== DASHBOARD ==========
+let allProjects = [], allPOs = [], allRisks = [], allCostPlan = [];
+let masterData = null;
+
+async function loadDashboard() {
+  try {
+    masterData = await loadMasters();
+    [allProjects, allPOs, allRisks, allCostPlan] = await Promise.all([
+      hapFetch(WS.project),
+      hapFetch(WS.po),
+      hapFetch(WS.risk),
+      hapFetch(WS.costPlan),
+    ]);
+    renderDashboard();
+  } catch(e) {
+    $('kpi-grid').innerHTML = `<div class="error-msg" style="grid-column:1/-1">${e.message} — ensure HAP API is accessible from this browser.</div>`;
+  }
+}
+
+function renderDashboard() {
+  // KPIs
+  const totalContract = allProjects.reduce((s,p) => s + (parseFloat(p['biz_contract_sum'])||0), 0);
+  const totalForecast = allProjects.reduce((s,p) => s + (parseFloat(p['biz_total_forecast'])||0), 0);
+  const totalVariance = allProjects.reduce((s,p) => s + (parseFloat(p['biz_total_variance'])||0), 0);
+  const totalContrib = allProjects.reduce((s,p) => s + (parseFloat(p['biz_total_contribution'])||0), 0);
+  const openRisks = allRisks.filter(r => r['biz_status'] && Array.isArray(r['biz_status']) && r['biz_status'][0]?.value !== 'Closed').length;
+  const delayedMs = allProjects.flatMap(p => []).reduce((a,m) => a, []);
+
+  const kpis = [
+    {label:'Contract Sum', value: fmt(totalContract), sub:'Active projects', cls:'blue'},
+    {label:'Final Forecast', value: fmt(totalForecast), sub:'Total committed', cls:''},
+    {label:'Variance', value: fmt(totalVariance), sub: totalVariance >= 0 ? 'Under budget' : 'Over budget', cls: totalVariance >= 0 ? 'green' : 'red'},
+    {label:'Contribution', value: fmt(totalContrib), sub:'Projected margin', cls:'green'},
+    {label:'Open Risks', value: openRisks, sub:'Risk2Do items', cls: openRisks > 0 ? 'orange' : 'green'},
+    {label:'Purchase Orders', value: allPOs.length, sub:'Total orders', cls:'blue'},
+  ];
+
+  $('kpi-grid').innerHTML = kpis.map(k => `
+    <div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value ${k.cls}">${k.value}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+
+  // Budget chart
+  const cpRows = allCostPlan.filter(r => r['biz_line_item'] && !r['biz_line_item'].startsWith('---'));
+  const maxVal = Math.max(...cpRows.map(r => Math.max(parseFloat(r['biz_orig_budget']||0), parseFloat(r['biz_final_forecast']||0))), 1);
+  $('chart-budget').innerHTML = cpRows.slice(0,8).map(r => {
+    const orig = parseFloat(r['biz_orig_budget']||0);
+    const fcst = parseFloat(r['biz_final_forecast']||0);
+    return `<div class="bar-row">
+      <div class="bar-label">${r['biz_line_item'] ? r['biz_line_item'].substring(0,18) : r['biz_cp_id']||'-'}</div>
+      <div style="display:flex;gap:4px;flex:1;align-items:center;">
+        <div class="bar-track"><div class="bar-fill" style="width:${(orig/maxVal*100).toFixed(1)}%;background:#63b3ed;"></div></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${(fcst/maxVal*100).toFixed(1)}%;background:#f6ad55;"></div></div>
+      </div>
+      <div class="bar-val">${fmt(fcst)}</div>
+    </div>`;
+  }).join('') || '<div class="empty-state">No cost plan data</div>';
+
+  // Risk chart
+  const riskByCat = {};
+  allRisks.forEach(r => {
+    const cat = selectText(r['biz_risk_cat']);
+    if (!riskByCat[cat]) riskByCat[cat] = {provided:0, worst:0, opportunity:0};
+    riskByCat[cat].provided += parseFloat(r['biz_provided']||0);
+    riskByCat[cat].worst += parseFloat(r['biz_worst']||0);
+    riskByCat[cat].opportunity += parseFloat(r['biz_opportunity']||0);
+  });
+  const maxRisk = Math.max(...Object.values(riskByCat).map(r=>r.worst), 1);
+  $('chart-risk').innerHTML = Object.entries(riskByCat).map(([cat, d]) => `
+    <div class="bar-row">
+      <div class="bar-label">${cat}</div>
+      <div style="display:flex;gap:4px;flex:1;align-items:center;">
+        <div class="bar-track" title="Contingency provided: ${fmt(d.provided)}"><div class="bar-fill" style="width:${(d.provided/maxRisk*100).toFixed(1)}%;background:#68d391;"></div></div>
+        <div class="bar-track" title="Worst case: ${fmt(d.worst)}"><div class="bar-fill" style="width:${(d.worst/maxRisk*100).toFixed(1)}%;background:#fc8181;"></div></div>
+        <div class="bar-track" title="Opportunity value: ${fmt(d.opportunity)}"><div class="bar-fill" style="width:${(d.opportunity/maxRisk*100).toFixed(1)}%;background:#90cdf4;"></div></div>
+      </div>
+      <div class="bar-val">${fmt(d.worst)}</div>
+    </div>`).join('') || '<div class="empty-state">No risk data</div>';
+
+  // Recent POs
+  $('dash-po-tbody').innerHTML = allPOs.slice(0,5).map(r => `
+    <tr>
+      <td><strong>${r['biz_po_no']||'—'}</strong></td>
+      <td>${relName(r['biz_supplier_id'], 'sub', masterData?.subs)||r['biz_supplier_id']||'—'}</td>
+      <td>${relName(r['biz_category_code'], 'cat', masterData?.categories)||r['biz_category_code']||'—'}</td>
+      <td style="text-align:right;font-weight:600;">${fmt(r['biz_order_total'])}</td>
+      <td>${statusBadge(r['biz_status'])}</td>
+      <td>${dateStr(r['biz_delivery_req'])}</td>
+    </tr>`).join('') || '<tr><td colspan="6" class="empty-state">No POs found</td></tr>';
+}
+
+function statusBadge(val) {
+  const s = selectText(val);
+  return `<span class="badge badge-${badgeClass(s)}">${s}</span>`;
+}
+
+// ========== COST PLAN ==========
+async function loadCostPlan() {
+  try {
+    const rows = await hapFetch(WS.costPlan);
+    allCostPlan = rows;
+    renderCostPlan(rows);
+  } catch(e) { $('cp-tbody').innerHTML = `<tr><td colspan="9" class="error-msg">${e.message}</td></tr>`; }
+}
+
+function renderCostPlan(rows) {
+  const cols = ['biz_cp_id','biz_line_item','biz_orig_budget','biz_adj_budget','biz_alloc_budget','biz_committed','biz_final_forecast','biz_variance','biz_var_pct'];
+  const headers = ['Code','Description','Original Budget','Adjusted Budget','Allocated','Committed','Final Forecast','Variance','%'];
+  $('cp-tbody').innerHTML = rows.map(r => {
+    const vals = cols.map(c => {
+      const v = r[c];
+      if (c.includes('budget') || c.includes('forecast') || c.includes('committ') || c.includes('allocat') || c === 'biz_variance') return `<td style="text-align:right">${fmt(v)}</td>`;
+      if (c === 'biz_var_pct') return `<td style="text-align:right" class="${(v||0)>0?'cost-var-neg':'cost-var-pos'}">${v != null ? v+'%' : '—'}</td>`;
+      return `<td>${v||'—'}</td>`;
+    });
+    return `<tr>${vals.join('')}</tr>`;
+  }).join('') || '<tr><td colspan="9" class="empty-state">No cost plan data</td></tr>';
+}
+
+// ========== PURCHASE ORDERS ==========
+async function loadPOs(filter) {
+  try {
+    let rows = allPOs.length ? allPOs : await hapFetch(WS.po);
+    if (filter) rows = rows.filter(r => {
+      const s = statusText(r['biz_status']);
+      return s.includes(filter);
+    });
+    $('po-tbody').innerHTML = rows.map(r => `
+      <tr>
+        <td><strong>${r['biz_po_no']||'—'}</strong></td>
+        <td>${relName(r['biz_project_rel'] ?? r['biz_project_code'], 'project', masterData?.projects)||r['biz_project_code']||'—'}</td>
+        <td>${relName(r['biz_supplier_id'], 'sub', masterData?.subs)||r['biz_supplier_id']||'—'}</td>
+        <td>${relName(r['biz_category_code'], 'cat', masterData?.categories)||r['biz_category_code']||'—'}</td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis">${(r['biz_scope']||'—').substring(0,40)}</td>
+        <td style="text-align:right;font-weight:600;">${fmt(r['biz_order_total'])}</td>
+        <td>${selectText(r['biz_pay_terms'])}</td>
+        <td>${dateStr(r['biz_delivery_req'])}</td>
+        <td>${statusBadge(r['biz_status'])}</td>
+      </tr>`).join('') || '<tr><td colspan="9" class="empty-state">No POs found</td></tr>';
+  } catch(e) { $('po-tbody').innerHTML = `<tr><td colspan="9" class="error-msg">${e.message}</td></tr>`; }
+}
+
+// ========== CLAIMS ==========
+async function loadClaims(filter) {
+  try {
+    let rows = await hapFetch(WS.claim);
+    if (filter) rows = rows.filter(r => statusText(r['biz_status']).includes(filter));
+    $('claim-tbody').innerHTML = rows.map(r => `
+      <tr>
+        <td><strong>${r['biz_claim_no']||'—'}</strong></td>
+        <td>${relName(r['biz_project_rel'] ?? r['biz_project_code'], 'project', masterData?.projects)||r['biz_project_code']||'—'}</td>
+        <td>${r['biz_interim_no']||'—'}</td>
+        <td>${dateStr(r['biz_claim_date'])}</td>
+        <td style="text-align:right;font-weight:600;">${fmt(r['biz_gross_claim'])}</td>
+        <td style="text-align:right;">${fmt(r['biz_retention'])}</td>
+        <td style="text-align:right;font-weight:600;">${fmt(r['biz_net_claim'])}</td>
+        <td style="text-align:right;">${fmt(r['biz_cum_billed'])}</td>
+        <td style="text-align:right;">${r['biz_cum_pct']!=null?r['biz_cum_pct']+'%':'—'}</td>
+        <td>${statusBadge(r['biz_status'])}</td>
+      </tr>`).join('') || '<tr><td colspan="10" class="empty-state">No claims found</td></tr>';
+  } catch(e) { $('claim-tbody').innerHTML = `<tr><td colspan="10" class="error-msg">${e.message}</td></tr>`; }
+}
+
+// ========== VARIATIONS ==========
+async function loadVOs(filter) {
+  try {
+    let rows = await hapFetch(WS.vo);
+    if (filter) rows = rows.filter(r => {
+      const s = selectText(r['biz_vo_type']);
+      return s.includes(filter);
+    });
+    $('vo-tbody').innerHTML = rows.map(r => `
+      <tr>
+        <td><strong>${r['biz_vo_no']||'—'}</strong></td>
+        <td>${relName(r['biz_project_rel'] ?? r['biz_project_code'], 'project', masterData?.projects)||r['biz_project_code']||'—'}</td>
+        <td>${selectText(r['biz_vo_type'])}</td>
+        <td>${dateStr(r['biz_vo_date'])}</td>
+        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis">${r['biz_desc']||'—'}</td>
+        <td style="text-align:right;color:var(--success);">${fmt(r['biz_cost_pos'])}</td>
+        <td style="text-align:right;color:var(--danger);">${fmt(r['biz_cost_neg'])}</td>
+        <td style="text-align:right;font-weight:600;">${fmt(r['biz_net_impact'])}</td>
+        <td>${statusBadge(r['biz_billing_status'])}</td>
+        <td>${r['biz_approved_by']||'—'}</td>
+      </tr>`).join('') || '<tr><td colspan="10" class="empty-state">No VOs found</td></tr>';
+  } catch(e) { $('vo-tbody').innerHTML = `<tr><td colspan="10" class="error-msg">${e.message}</td></tr>`; }
+}
+
+// ========== RISKS ==========
+async function loadRisks(filter) {
+  try {
+    let rows = allRisks.length ? allRisks : await hapFetch(WS.risk);
+    if (filter) rows = rows.filter(r => statusText(r['biz_status']).includes(filter));
+    $('risk-tbody').innerHTML = rows.map(r => `
+      <tr>
+        <td><strong>${r['biz_risk_no']||r['biz_risk_id']||'—'}</strong></td>
+        <td>${relName(r['biz_project_rel'] ?? r['biz_project_code'], 'project', masterData?.projects)||r['biz_project_code']||'—'}</td>
+        <td>${selectText(r['biz_risk_cat'])}</td>
+        <td>${selectText(r['biz_severity'])}</td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis" title="${r['biz_desc']||''}">${(r['biz_desc']||'—').substring(0,40)}</td>
+        <td style="text-align:right;">${fmtInt(r['biz_provided'])}</td>
+        <td style="text-align:right;">${fmtInt(r['biz_worst'])}</td>
+        <td style="text-align:right;color:var(--success);">${fmtInt(r['biz_opportunity'])}</td>
+        <td>${dateStr(r['biz_identified'])}</td>
+        <td>${dateStr(r['biz_closed'])}</td>
+        <td>${statusBadge(r['biz_status'])}</td>
+      </tr>`).join('') || '<tr><td colspan="11" class="empty-state">No risks found</td></tr>';
+  } catch(e) { $('risk-tbody').innerHTML = `<tr><td colspan="11" class="error-msg">${e.message}</td></tr>`; }
+}
+
+// ========== MILESTONES ==========
+async function loadMilestones() {
+  try {
+    const rows = await hapFetch(WS.milestone);
+    $('ms-tbody').innerHTML = rows.map(r => `
+      <tr>
+        <td><strong>${r['biz_name']||'—'}</strong></td>
+        <td>${relName(r['biz_project_rel'] ?? r['biz_project_code'], 'project', masterData?.projects)||r['biz_project_code']||'—'}</td>
+        <td>${dateStr(r['biz_planned'])}</td>
+        <td>${dateStr(r['biz_actual'])}</td>
+        <td style="text-align:right;font-weight:600;color:${parseInt(r['biz_delay'])>0?'var(--danger)':'inherit'}">${r['biz_delay']!=null?r['biz_delay']:'—'}</td>
+        <td>${statusBadge(r['biz_status'])}</td>
+      </tr>`).join('') || '<tr><td colspan="6" class="empty-state">No milestones found</td></tr>';
+  } catch(e) { $('ms-tbody').innerHTML = `<tr><td colspan="6" class="error-msg">${e.message}</td></tr>`; }
+}
+
+// ========== EXPENSES ==========
+async function loadExpenses() {
+  try {
+    const rows = await hapFetch(WS.expense);
+    $('exp-tbody').innerHTML = rows.map(r => `
+      <tr>
+        <td><strong>${r['biz_exp_id']||r['_id']||'—'}</strong></td>
+        <td>${relName(r['biz_project_rel'] ?? r['biz_project_code'], 'project', masterData?.projects)||r['biz_project_code']||'—'}</td>
+        <td>${relName(r['biz_emp_rel'] ?? r['biz_emp_no'], 'emp', masterData?.employees)||r['biz_emp_no']||'—'}</td>
+        <td>${dateStr(r['biz_exp_date'])}</td>
+        <td>${selectText(r['biz_exp_type'])}</td>
+        <td style="text-align:right;font-weight:600;">${fmt(r['biz_amount'])}</td>
+        <td>${selectText(r['biz_currency'])}</td>
+        <td>${r['biz_receipt']||'—'}</td>
+        <td>${statusBadge(r['biz_status'])}</td>
+      </tr>`).join('') || '<tr><td colspan="9" class="empty-state">No expense claims found</td></tr>';
+  } catch(e) { $('exp-tbody').innerHTML = `<tr><td colspan="9" class="error-msg">${e.message}</td></tr>`; }
+}
+
+// ========== TIMESHEETS ==========
+async function loadTimesheets(filter) {
+  try {
+    let rows = await hapFetch(WS.timesheet);
+    if (filter) rows = rows.filter(r => statusText(r['biz_status']).includes(filter));
+    $('ts-tbody').innerHTML = rows.map(r => `
+      <tr>
+        <td><strong>${r['biz_ts_id']||'—'}</strong></td>
+        <td>${relName(r['biz_project_rel'] ?? r['biz_project_code'], 'project', masterData?.projects)||r['biz_project_code']||'—'}</td>
+        <td>${relName(r['biz_emp_rel'] ?? r['biz_emp_no'], 'emp', masterData?.employees)||r['biz_emp_no']||'—'}</td>
+        <td>${dateStr(r['biz_work_date'])}</td>
+        <td>${selectText(r['biz_activity'])}</td>
+        <td style="text-align:right;">${fmtInt(r['biz_hours'])}</td>
+        <td>${statusBadge(r['biz_status'])}</td>
+      </tr>`).join('') || '<tr><td colspan="7" class="empty-state">No timesheets found</td></tr>';
+  } catch(e) { $('ts-tbody').innerHTML = `<tr><td colspan="7" class="error-msg">${e.message}</td></tr>`; }
+}
+
+// ========== INIT ==========
+async function init() {
+  await loadUser();
+  loadDashboard();
+  loadCostPlan();
+  loadPOs();
+  loadClaims();
+  loadVOs();
+  loadRisks();
+  loadMilestones();
+  loadExpenses();
+  loadTimesheets();
+
+  // Build filter bars
+  const poStatuses = ['Draft','Submitted','Approved','In Transit','Received','Closed','Rejected'];
+  buildFilters('po-filters', poStatuses.map(s=>({label:s,value:s})), v => loadPOs(v));
+
+  const claimStatuses = ['Draft','Submitted','Approved','Paid','Rejected'];
+  buildFilters('claim-filters', claimStatuses.map(s=>({label:s,value:s})), v => loadClaims(v));
+
+  const voTypes = ['Client Initiated','Contractor Proposed','Design Change'];
+  buildFilters('vo-filters', voTypes.map(s=>({label:s,value:s})), v => loadVOs(v));
+
+  const riskStatuses = ['Identified','In Progress','Closed'];
+  buildFilters('risk-filters', riskStatuses.map(s=>({label:s,value:s})), v => loadRisks(v));
+
+  const tsStatuses = ['Draft','Submitted','Approved','Rejected'];
+  buildFilters('ts-filters', tsStatuses.map(s=>({label:s,value:s})), v => loadTimesheets(v));
+}
+
+init();
+</script>
+</body>
+</html>
