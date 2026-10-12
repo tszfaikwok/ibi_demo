@@ -1,17 +1,17 @@
 // Vercel Serverless Function: proxies HAP V3 API calls.
 //
-// Credentials are hardcoded for the demo deployment (security TODO: move to env vars).
+// Auth token is read from the HAP_AUTH_TOKEN environment variable (set in
+// Vercel → Project → Settings → Environment Variables). Never hardcode it.
 // Refresh when the session token expires: `hap auth login`, then decrypt via
-// hap_cli.core.token_crypto.decrypt_token and paste below.
+// hap_cli.core.token_crypto.decrypt_token and update the env var.
 
 const HAP_API_BASE = process.env.HAP_API_BASE || 'https://api.mingdao.com';
-const HAP_AUTH_TOKEN = '0cb08c0df06a0120c701d0390770eb0e30000280f409903b';
 const HAP_ACCOUNT_ID = '68d6380a-31cd-492d-801f-ff1845f87b33';
 
 function buildHeaders(appId) {
   return {
     'Content-Type': 'application/json',
-    'Authorization': `md_pss_id ${HAP_AUTH_TOKEN}`,
+    'Authorization': `md_pss_id ${process.env.HAP_AUTH_TOKEN}`,
     'AccountId': HAP_ACCOUNT_ID,
     'X-Requested-With': 'XMLHttpRequest',
     'Origin': 'https://www.mingdao.com',
@@ -22,21 +22,26 @@ function buildHeaders(appId) {
   };
 }
 
-async function rowsList(wsId, appId) {
+async function rowsList(wsId, appId, req) {
   // Frontend sends: /api/hap?appId=X&wsId=Y&pageSize=500&fields=...&filter=...
+  const q = req.query || {};
   const body = {
-    pageSize: parseInt(req.query.pageSize) || 500,
-    pageIndex: parseInt(req.query.pageIndex) || 1,
-    responseFormat: req.query.responseFormat || 'json',
-    includeSystemFields: req.query.includeSystemFields === 'true',
+    pageSize: parseInt(q.pageSize) || 500,
+    pageIndex: parseInt(q.pageIndex) || 1,
+    responseFormat: q.responseFormat || 'json',
+    includeSystemFields: q.includeSystemFields === 'true',
   };
-  if (req.query.includeTotalCount === 'true') body.includeTotalCount = true;
-  if (req.query.fields) body.fields = String(req.query.fields).split(',');
-  if (req.query.filter) {
-    try { body.filter = JSON.parse(req.query.filter); } catch (e) {}
+  if (q.includeTotalCount === 'true') body.includeTotalCount = true;
+  if (q.fields) body.fields = String(q.fields).split(',');
+  if (q.filter) {
+    try { body.filter = JSON.parse(q.filter); } catch (e) {}
   }
-  if (req.query.sorts) {
-    try { body.sorts = JSON.parse(req.query.sorts); } catch (e) {}
+  if (q.sorts) {
+    try { body.sorts = JSON.parse(q.sorts); } catch (e) {}
+  }
+
+  if (!process.env.HAP_AUTH_TOKEN) {
+    return { success: false, error_msg: 'HAP_AUTH_TOKEN env var not set on Vercel' };
   }
 
   const response = await fetch(
@@ -87,7 +92,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const data = await rowsList(wsId, appId);
+    const data = await rowsList(wsId, appId, req);
     res.status(200).json(data);
   } catch (err) {
     res.status(500).json({ success: false, error_msg: err.message });
