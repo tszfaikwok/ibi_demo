@@ -26,7 +26,7 @@
   /* Top Navigation Bar (horizontal tabs, sticky) */
   .topnav { position: sticky; top: 0; z-index: 100; background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
   .topnav-inner { display: flex; align-items: center; gap: 24px; padding: 0 24px; height: 56px; }
-  .topnav-brand { display: flex; flex-direction: column; flex-shrink: 0; }
+  .topnav-brand { display: flex; flex-direction: row; flex-shrink: 0; }
   .topnav-brand h1 { font-size: 15px; font-weight: 700; letter-spacing: 0.5px; }
   .topnav-brand span { font-size: 10px; opacity: 0.65; }
   .topnav-tabs { display: flex; gap: 4px; overflow-x: auto; flex: 1; scrollbar-width: none; }
@@ -39,7 +39,7 @@
   .topnav-user img { width: 28px; height: 28px; border-radius: 50%; }
 
   /* Main */
-  .main { flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+  .main { flex: 1; display: flex; flex-direction: row; min-height: 100vh; }
   .content { flex: 1; padding: 24px; }
 
   /* KPI Cards */
