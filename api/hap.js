@@ -7,7 +7,7 @@
 // The function maps frontend query params to the HAP V3 API body.
 
 const HAP_API_BASE = process.env.HAP_API_BASE || 'https://api.mingdao.com';
-const HAP_AUTH_TOKEN = '07704d06c0ec09c0440cf0900ec0c10760410dd0ab0640a1';
+const HAP_AUTH_TOKEN = '0cb08c0df06a0120c701d0390770eb0e30000280f409903b';
 const HAP_ACCOUNT_ID = '68d6380a-31cd-492d-801f-ff1845f87b33';
 
 function buildHeaders(appId) {
