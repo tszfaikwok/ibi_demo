@@ -4,9 +4,6 @@
   "functions": {
     "api/hap.js": {
       "maxDuration": 30
-    },
-    "api/user.js": {
-      "maxDuration": 10
     }
   }
 }
