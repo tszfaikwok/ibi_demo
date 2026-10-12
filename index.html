@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IBI Construction PM</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
   :root {
     --primary: #1a3a5c;
@@ -22,25 +23,23 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
 
-  /* Sidebar */
-  .sidebar { width: 240px; background: var(--primary); color: white; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
-  .sidebar-brand { padding: 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-  .sidebar-brand h1 { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
-  .sidebar-brand span { font-size: 11px; opacity: 0.7; display: block; margin-top: 2px; }
-  .sidebar-nav { flex: 1; padding: 8px 0; overflow-y: auto; }
-  .nav-section { padding: 8px 16px 4px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.5; margin-top: 8px; }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; cursor: pointer; font-size: 13px; transition: background 0.15s; border-radius: 0; }
-  .nav-item:hover { background: rgba(255,255,255,0.1); }
-  .nav-item.active { background: rgba(255,255,255,0.15); border-left: 3px solid #63b3ed; padding-left: 13px; }
-  .nav-item .icon { width: 18px; text-align: center; font-size: 14px; }
-  .sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 11px; opacity: 0.6; }
+  /* Top Navigation Bar (horizontal tabs, sticky) */
+  .topnav { position: sticky; top: 0; z-index: 100; background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .topnav-inner { display: flex; align-items: center; gap: 24px; padding: 0 24px; height: 56px; }
+  .topnav-brand { display: flex; flex-direction: column; flex-shrink: 0; }
+  .topnav-brand h1 { font-size: 15px; font-weight: 700; letter-spacing: 0.5px; }
+  .topnav-brand span { font-size: 10px; opacity: 0.65; }
+  .topnav-tabs { display: flex; gap: 4px; overflow-x: auto; flex: 1; scrollbar-width: none; }
+  .topnav-tabs::-webkit-scrollbar { display: none; }
+  .topnav-tab { padding: 8px 14px; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.7); cursor: pointer; border-radius: 6px; white-space: nowrap; transition: background 0.15s, color 0.15s; position: relative; }
+  .topnav-tab:hover { background: rgba(255,255,255,0.1); color: white; }
+  .topnav-tab.active { background: rgba(255,255,255,0.15); color: white; }
+  .topnav-tab.active::after { content: ''; position: absolute; bottom: -8px; left: 14px; right: 14px; height: 3px; background: #63b3ed; border-radius: 3px 3px 0 0; }
+  .topnav-user { display: flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.7); flex-shrink: 0; }
+  .topnav-user img { width: 28px; height: 28px; border-radius: 50%; }
 
   /* Main */
-  .main { flex: 1; margin-left: 240px; display: flex; flex-direction: column; min-height: 100vh; }
-  .topbar { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
-  .topbar-title { font-size: 15px; font-weight: 600; color: var(--text); }
-  .topbar-user { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
-  .topbar-user img { width: 28px; height: 28px; border-radius: 50%; }
+  .main { flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
   .content { flex: 1; padding: 24px; }
 
   /* KPI Cards */
@@ -168,13 +167,43 @@
   .tag-risk { background: #fed7d7; color: #742a2a; border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 700; margin-left: 6px; }
   .tag-pending { background: #feebc8; color: #7c2d12; border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 700; margin-left: 6px; }
 
-  /* Responsive */
+  /* Project Tracker */
+  .pt-toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .pt-select-wrap { position: relative; flex: 1; min-width: 240px; max-width: 420px; }
+  .pt-select { width: 100%; padding: 9px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; color: var(--text); background: var(--card); cursor: pointer; appearance: none; }
+  .pt-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(49,130,206,0.15); }
+  .pt-select-hint { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .pt-health { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .progress-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; }
+  .progress-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .progress-head .p-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+  .progress-head .p-pct { font-size: 20px; font-weight: 700; }
+  .progress-track { height: 10px; background: #f1f5f9; border-radius: 6px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 6px; transition: width 0.6s ease; background: var(--info); }
+  .progress-fill.green { background: var(--success); }
+  .progress-fill.red { background: var(--danger); }
+  .progress-fill.orange { background: var(--warning); }
+  .progress-sub { font-size: 11px; color: var(--muted); margin-top: 8px; }
+
+  /* Mermaid workflow */
+  .wf-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+  .wf-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); }
+  .wf-legend .lg { display: flex; align-items: center; gap: 6px; }
+  .wf-legend .swatch { width: 12px; height: 12px; border-radius: 3px; }
+  #mermaid-wrap { overflow-x: auto; }
+  #mermaid-wrap svg { max-width: 100%; }
+  .mermaid .node { cursor: pointer; }
+  .mermaid .node:hover rect { filter: brightness(0.96); }
+  .mermaid .node.selected rect { stroke-width: 3px; }
+  .stage-detail { margin-top: 16px; }
+  .stage-detail .sd-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .sd-status { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+
+  /* Responsive top nav */
   @media (max-width: 900px) {
-    .sidebar { width: 56px; }
-    .sidebar-brand h1, .sidebar-brand span, .nav-section, .nav-item span, .sidebar-footer { display: none; }
-    .nav-item { justify-content: center; padding: 12px; }
-    .nav-item.active { border-left: none; border-bottom: 3px solid #63b3ed; padding-left: 12px; }
-    .main { margin-left: 56px; }
+    .topnav-inner { gap: 12px; padding: 0 14px; }
+    .topnav-brand span, .topnav-user span { display: none; }
+    .topnav-tab { padding: 8px 10px; font-size: 12px; }
     .chart-row { grid-template-columns: 1fr; }
     .invest-drawer { width: 100vw; }
   }
@@ -182,44 +211,38 @@
 </head>
 <body>
 
-<!-- Sidebar -->
-<aside class="sidebar">
-  <div class="sidebar-brand">
-    <h1>IBI Construction</h1>
-    <span>Project Management System</span>
+<!-- Top Navigation Bar -->
+<div class="topnav">
+  <div class="topnav-inner">
+    <div class="topnav-brand">
+      <h1>IBI Construction</h1>
+      <span>Project Management · Powered by HAP</span>
+    </div>
+    <nav class="topnav-tabs" id="topnav-tabs">
+      <div class="topnav-tab active" data-section="dashboard">Dashboard</div>
+      <div class="topnav-tab" data-section="project-tracker">Project Tracker</div>
+      <div class="topnav-tab" data-section="cost-plan">Cost Plan</div>
+      <div class="topnav-tab" data-section="purchase-orders">Purchase Orders</div>
+      <div class="topnav-tab" data-section="claims">Progress Claims</div>
+      <div class="topnav-tab" data-section="variations">Variation Orders</div>
+      <div class="topnav-tab" data-section="risks">Risk2Do</div>
+      <div class="topnav-tab" data-section="milestones">Milestones</div>
+      <div class="topnav-tab" data-section="timesheets">Timesheets</div>
+      <div class="topnav-tab" data-section="expenses">Expenses</div>
+    </nav>
+    <div class="topnav-user">
+      <img id="topbar-user-avatar" src="https://p1.mingdaoyun.cn/UserAvatar/default2.png?watermark/2/text/dA==/font/5oCd5rqQ6buR5L2T/fontsize/1000/fill/d2hpdGU=/dissolve/100/gravity/Center/dx/0/dy/0/fontstyle/Ym9sZA==%7CimageView2/1/w/48/h/48/q/90" alt="avatar">
+      <span id="topbar-user-name">Loading...</span>
+    </div>
   </div>
-  <nav class="sidebar-nav">
-    <div class="nav-section">Overview</div>
-    <div class="nav-item active" data-section="dashboard"><span class="icon">&#9632;</span><span>Dashboard</span></div>
-    <div class="nav-section">Financial</div>
-    <div class="nav-item" data-section="cost-plan"><span class="icon">&#9650;</span><span>Cost Plan</span></div>
-    <div class="nav-item" data-section="purchase-orders"><span class="icon">&#9744;</span><span>Purchase Orders</span></div>
-    <div class="nav-item" data-section="claims"><span class="icon">&#9830;</span><span>Progress Claims</span></div>
-    <div class="nav-item" data-section="variations"><span class="icon">&#9734;</span><span>Variation Orders</span></div>
-    <div class="nav-section">Operations</div>
-    <div class="nav-item" data-section="risks"><span class="icon">&#9888;</span><span>Risk2Do</span></div>
-    <div class="nav-item" data-section="milestones"><span class="icon">&#9733;</span><span>Milestones</span></div>
-    <div class="nav-item" data-section="timesheets"><span class="icon">&#9660;</span><span>Timesheets</span></div>
-    <div class="nav-item" data-section="expenses"><span class="icon">&#9829;</span><span>Expense Claims</span></div>
-  </nav>
-  <div class="sidebar-footer">
-    Powered by HAP &middot; Live Data
-  </div>
-</aside>
+</div>
 
 <!-- Main Content -->
 <div class="main">
-  <header class="topbar">
-    <div class="topbar-title" id="topbar-title">Dashboard</div>
-    <div class="topbar-user">
-      <img src="https://p1.mingdaoyun.cn/UserAvatar/default2.png?watermark/2/text/dA==/font/5oCd5rqQ6buR5L2T/fontsize/1000/fill/d2hpdGU=/dissolve/100/gravity/Center/dx/0/dy/0/fontstyle/Ym9sZA==%7CimageView2/1/w/48/h/48/q/90" alt="avatar">
-      <span id="topbar-user-name">Loading...</span>
-    </div>
-  </header>
-
   <div class="content">
     <!-- DASHBOARD -->
     <div class="section active" id="sec-dashboard">
+      <div class="section-header"><div class="section-title">Portfolio Dashboard</div></div>
       <div class="breadcrumb-bar" id="dash-breadcrumb"></div>
       <div class="kpi-grid" id="kpi-grid"></div>
       <div class="chart-row">
@@ -242,6 +265,30 @@
           <div class="table-wrapper"><table><thead><tr><th>PO No.</th><th>Supplier</th><th>Category</th><th>Total (HKD)</th><th>Status</th><th>Due</th></tr></thead><tbody id="dash-po-tbody"></tbody></table></div>
         </div>
       </div>
+    </div>
+
+    <!-- PROJECT TRACKER -->
+    <div class="section" id="sec-project-tracker">
+      <div class="section-header"><div class="section-title">Project Tracker &amp; Workflow</div></div>
+      <div class="pt-toolbar">
+        <div class="pt-select-wrap">
+          <select class="pt-select" id="pt-project-select" onchange="ptSelectProject(this.value)"></select>
+        </div>
+        <span class="pt-select-hint">Select a project to view its lifecycle workflow</span>
+      </div>
+      <div class="pt-health" id="pt-health"></div>
+      <div class="wf-card">
+        <div class="section-title" style="margin-bottom:4px;">Project Lifecycle Workflow</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Click any stage to inspect pending transactions, approvals &amp; bottlenecks.</div>
+        <div id="mermaid-wrap"><div class="loading"><div class="spinner"></div>Rendering workflow…</div></div>
+        <div class="wf-legend">
+          <div class="lg"><span class="swatch" style="background:#c6f6d5;border:1px solid #38a169;"></span> Completed</div>
+          <div class="lg"><span class="swatch" style="background:#bee3f8;border:2px solid #3182ce;"></span> In Progress</div>
+          <div class="lg"><span class="swatch" style="background:#fed7d7;border:2px solid #e53e3e;"></span> Delayed / Blocked</div>
+          <div class="lg"><span class="swatch" style="background:#f1f5f9;border:1px solid #e2e8f0;"></span> Not Started</div>
+        </div>
+      </div>
+      <div class="stage-detail table-card" id="stage-detail" style="display:none"></div>
     </div>
 
     <!-- COST PLAN -->
@@ -422,18 +469,33 @@ async function loadUser() {
   } catch(e) { $('topbar-user-name').textContent = 'User'; }
 }
 
-// Navigation
-document.querySelectorAll('.nav-item').forEach(item => {
-  item.addEventListener('click', () => {
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    item.classList.add('active');
-    const sec = item.dataset.section;
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    $(`sec-${sec}`).classList.add('active');
-    const titles = {'dashboard':'Dashboard','cost-plan':'Cost Plan','purchase-orders':'Purchase Orders','claims':'Progress Claims','variations':'Variation Orders','risks':'Risk2Do Tracker','milestones':'Project Milestones','timesheets':'Timesheets','expenses':'Expense Claims'};
-    $('topbar-title').textContent = titles[sec] || 'Dashboard';
-  });
+// Navigation (top tabs)
+document.querySelectorAll('.topnav-tab').forEach(item => {
+  item.addEventListener('click', () => switchSection(item.dataset.section, true));
 });
+
+function switchSection(sec, pushUrl) {
+  document.querySelectorAll('.topnav-tab').forEach(n => n.classList.toggle('active', n.dataset.section === sec));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  $(`sec-${sec}`).classList.add('active');
+  if (sec === 'project-tracker' && !ptLoaded) ptLoaded = true, loadProjectTracker();
+  if (pushUrl !== false) {
+    const url = sec === 'project-tracker'
+      ? `project-tracker?projectId=${encodeURIComponent(activeProject?.['biz_project_code']||'')}&stage=${encodeURIComponent(ptStage||'')}`
+      : sec;
+    history.replaceState(null, '', `/${url}`);
+  }
+}
+
+// Sync active section with URL (shareable: /project-tracker?projectId=X&stage=Y)
+function readUrl() {
+  const parts = (location.pathname || '/').split('/').filter(Boolean); // ['project-tracker','?projectId=...']
+  const section = parts[0] || 'dashboard';
+  const validSections = [...document.querySelectorAll('.section')].map(s => s.id.replace('sec-',''));
+  const sec = validSections.includes(section) ? section : 'dashboard';
+  switchSection(sec, false);
+  return sec;
+}
 
 // Filter bars
 function buildFilters(containerId, options, onChange) {
@@ -889,7 +951,256 @@ function poRowDrill(poNo) {
   });
 }
 
-// ========== COST PLAN ==========
+// ========== PROJECT TRACKER ==========
+let ptLoaded = false;
+let activeProject = null;
+let ptStage = '';
+let ptWorkflow = null; // current project's derived stage states
+
+// Derive stage state from live data for a given project.
+// Six lifecycle stages; each maps to concrete worksheet evidence.
+const PT_STAGES = [
+  { id: 'tender',      label: 'Tender / Pre-sales',                status: 'completed' },
+  { id: 'costplan',    label: 'Cost Planning & Budget Approval',   status: 'completed' },
+  { id: 'procurement', label: 'PO & Subcontractor Procurement',    status: 'in_progress' },
+  { id: 'construction',label: 'Site Construction & Progress Claims',status: 'in_progress' },
+  { id: 'vo',          label: 'VO Approvals',                      status: 'not_started' },
+  { id: 'closeout',    label: 'Project Closeout & Final Account',  status: 'not_started' },
+];
+
+function deriveStages(projCode) {
+  const fClaims = drillCache.claims.filter(c => matchProject(c, c['biz_project_rel'], projCode));
+  const fPOs    = drillCache.po.filter(p => matchProject(p, p['biz_project_rel'], projCode));
+  const fVOs    = drillCache.vos.filter(v => matchBlockVO(v, projCode));
+  const proj    = allProjects.find(p => (p['biz_project_code']||'') === projCode) || {};
+
+  // Completion % from progress claims cumulative %
+  const cumPct = fClaims.length
+    ? Math.max(...fClaims.map(c => parseFloat(c['biz_cum_pct'])||0)) : 0;
+
+  // Spend-to-date = committed PO total + billed claims
+  const spendTo = fPOs.reduce((s,p) => s + (parseFloat(p['biz_recv_amount']||p['biz_order_total'])||0), 0);
+
+  // Delay days = max milestone delay
+  const ms = (masterData?.milestones||[]).filter(m => matchProject(m, m['biz_project_rel'], projCode));
+  const delayDays = ms.length ? Math.max(...ms.map(m => parseInt(m['biz_delay'])||0)) : 0;
+
+  // Determine per-stage status by evidence
+  const poOpen = fPOs.filter(p => selectText(p['biz_status']).match(/Approved|In Transit|Submitted/)).length;
+  const claimsOpen = fClaims.filter(c => selectText(c['biz_status']).match(/Submitted|Approved|Paid/)).length;
+  const voOpen = fVOs.length;
+
+  const st = PT_STAGES.map(s => ({ ...s }));
+  st[0].status = 'completed';   // tender/pre-sales assumed done (project exists)
+  st[1].status = 'completed';   // cost plan present
+  st[2].status = poOpen > 0 ? 'in_progress' : (fPOs.length ? 'completed' : 'not_started');
+  st[3].status = claimsOpen > 0 ? 'in_progress' : (cumPct > 0 ? 'in_progress' : 'not_started');
+  st[4].status = voOpen > 0 ? 'in_progress' : 'not_started';
+  st[4].blocked = fVOs.some(v => selectText(v['biz_billing_status']) === 'Not Billed');
+  st[5].status = cumPct >= 99.5 ? 'in_progress' : 'not_started';
+  st[5].delayed = delayDays > 0;
+
+  return {
+    cumPct, spendTo, delayDays,
+    contractSum: parseFloat(proj['biz_contract_sum'])||0,
+    totalForecast: parseFloat(proj['biz_total_forecast'])||0,
+    stages: st,
+    claims: fClaims, po: fPOs, vo: fVOs, milestones: ms,
+  };
+}
+
+function matchBlockVO(v, projCode) { return matchProject(v, v['biz_project_rel'], projCode); }
+
+async function loadProjectTracker() {
+  if (!masterData) {
+    masterData = await loadMasters();
+    [allProjects, allPOs, allRisks, allCostPlan] = await Promise.all([
+      hapFetch(WS.project), hapFetch(WS.po), hapFetch(WS.risk), hapFetch(WS.costPlan),
+    ]);
+  }
+  if (!drillCache.claims.length) await loadDrillCache();
+  renderProjectTracker();
+}
+
+function renderProjectTracker() {
+  const sel = $('pt-project-select');
+  sel.innerHTML = allProjects.map(p =>
+    `<option value="${p['biz_project_code']||''}">${(p['biz_project_code']||'—')} · ${p['biz_project_name']||''}</option>`
+  ).join('');
+
+  // honor ?projectId= from URL, else first
+  const urlParams = new URLSearchParams(location.search);
+  const urlPid = urlParams.get('projectId');
+  let pid = allProjects.find(p => (p['biz_project_code']||'') === urlPid)?.['biz_project_code'];
+  if (!pid) pid = allProjects[0]?.['biz_project_code'] || '';
+  sel.value = pid;
+  ptSelectProject(pid, true);
+}
+
+async function ptSelectProject(pid, fromLoad) {
+  activeProject = allProjects.find(p => (p['biz_project_code']||'') === pid) || null;
+  if (!activeProject) return;
+  const wf = deriveStages(pid);
+  ptWorkflow = wf;
+  ptStage = '';
+  renderPtHealth(wf);
+  await renderWorkflowDiagram(wf);
+  renderStageDetail(null);
+  history.replaceState(null, '', `project-tracker?projectId=${encodeURIComponent(pid)}`);
+}
+
+function renderPtHealth(wf) {
+  const pct = Math.round(wf.cumPct || 0);
+  const spendCls = wf.spendTo > wf.totalForecast ? 'red' : (wf.totalForecast && wf.spendTo/wf.totalForecast > 0.8 ? 'orange' : 'green');
+  $('pt-health').innerHTML = `
+    <div class="progress-wrap">
+      <div class="progress-head"><span class="p-label">Completion</span><span class="p-pct">${pct}%</span></div>
+      <div class="progress-track"><div class="progress-fill ${pct>=99?'green':pct>0?'':'orange'}" style="width:${pct}%"></div></div>
+      <div class="progress-sub">Progress claim cumulative %</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-head"><span class="p-label">Total Budget</span><span class="p-pct" style="font-size:18px">${fmt(wf.totalForecast)}</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:100%;background:#cbd5e0"></div></div>
+      <div class="progress-sub">Final forecast HKD</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-head"><span class="p-label">Spend-to-Date</span><span class="p-pct" style="font-size:18px">${fmt(wf.spendTo)}</span></div>
+      <div class="progress-track"><div class="progress-fill ${spendCls}" style="width:${wf.totalForecast?Math.min(100, wf.spendTo/wf.totalForecast*100):0}%"></div></div>
+      <div class="progress-sub">Received PO value</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-head"><span class="p-label">Delay Days</span><span class="p-pct" style="font-size:18px;color:${wf.delayDays>0?'var(--danger)':'var(--success)'}">${wf.delayDays>0?wf.delayDays+'d':'On time'}</span></div>
+      <div class="progress-track"><div class="progress-fill ${wf.delayDays>0?'red':'green'}" style="width:${Math.min(100, wf.delayDays)}%"></div></div>
+      <div class="progress-sub">Max milestone slip</div>
+    </div>`;
+}
+
+async function renderWorkflowDiagram(wf) {
+  // Build Mermaid flowchart LR with per-stage styling
+  const color = {
+    completed:   { fill:'#c6f6d5', stroke:'#38a169', color:'#22543d' },
+    in_progress: { fill:'#bee3f8', stroke:'#3182ce', color:'#2a4365' },
+    not_started: { fill:'#f1f5f9', stroke:'#cbd5e0', color:'#718096' },
+    delayed:     { fill:'#fed7d7', stroke:'#e53e3e', color:'#742a2a' },
+  };
+  const node = (i) => {
+    const s = wf.stages[i];
+    const status = (s.delayed || s.blocked) ? 'delayed' : s.status;
+    const c = color[status];
+    let label = s.label;
+    if (status === 'in_progress') label = `${s.label}\n[IN PROGRESS]`;
+    if (status === 'delayed') label = `${s.label}\n[${s.blocked?'VO Not Billed':'DELAYED'}]`;
+    return `S${i}(["${label.replace(/"/g,'')}"]):::${status === 'delayed' ? 'blocked' : status}`;
+  };
+
+  let mermaidSrc = 'flowchart LR\n';
+  for (let i = 0; i < wf.stages.length; i++) {
+    mermaidSrc += `  ${node(i)}\n`;
+    if (i < wf.stages.length - 1) mermaidSrc += `  S${i} --> S${i+1}\n`;
+  }
+  // Class definitions
+  mermaidSrc += '\n' + ['completed','in_progress','not_started','blocked'].map(k => {
+    const c = color[k === 'blocked' ? 'delayed' : k];
+    return `classDef ${k} fill:${c.fill},stroke:${c.stroke},color:${c.color},stroke-width:2px,rx:6,ry:6;`;
+  }).join('\n');
+  mermaidSrc += `\nclass S0,S1 completed;\n`;
+  mermaidSrc += wf.stages.map((s,i) => (s.delayed||s.blocked) ? `class S${i} blocked;` : s.status==='in_progress' ? `class S${i} in_progress;` : s.status==='not_started' ? `class S${i} not_started;` : '').filter(Boolean).join('\n');
+
+  // Render via Mermaid
+  const wrap = $('mermaid-wrap');
+  wrap.innerHTML = `<pre class="mermaid">${mermaidSrc}</pre>`;
+  try {
+    await mermaid.run({ nodes: wrap.querySelectorAll('.mermaid') });
+  } catch(e) {
+    wrap.innerHTML = `<div class="empty-state">Workflow render failed: ${e.message}</div>`;
+    return;
+  }
+  // Wire click handlers onto rendered nodes.
+  // Mermaid v10 renders each node's id as "flowchart-S<idx>-..." (namespaced),
+  // so we parse the S<idx> token that appears right after the "flowchart-" prefix.
+  wrap.querySelectorAll('.node').forEach(n => {
+    n.style.cursor = 'pointer';
+    n.addEventListener('click', () => {
+      const id = n.id || '';
+      const m = id.match(/S(\d+)/);          // first S<idx> token (the node id)
+      const idx = m ? parseInt(m[1], 10) : -1;
+      if (idx >= 0) ptOpenStage(idx);
+    });
+  });
+}
+
+function ptOpenStage(idx) {
+  ptStage = idx;
+  const wf = ptWorkflow;
+  const s = wf.stages[idx];
+  if (!s) return;
+  const status = (s.delayed||s.blocked) ? 'delayed' : s.status;
+  const colorMap = { completed:'#38a169', in_progress:'#3182ce', delayed:'#e53e3e', not_started:'#718096' };
+  const badgeBg = { completed:'#c6f6d5;color:#22543d', in_progress:'#bee3f8;color:#2a4365', delayed:'#fed7d7;color:#742a2a', not_started:'#e2e8f0;color:#4a5568' };
+
+  // Stage-specific pending items
+  let body = '';
+  switch(s.id) {
+    case 'procurement':
+      body = wf.po.length
+        ? `<div class="drawer-section-title">Open / Active POs</div>${buildInvestTable('pt-po', [
+            {key:'biz_po_no',label:'PO No.'},{key:'biz_supplier_rel',label:'Supplier',type:'rel'},{key:'biz_order_total',label:'Total',num:true},{key:'biz_delivery_req',label:'Due'},{key:'biz_status',label:'Status',type:'badge'}
+          ], wf.po)}`
+        : '<div class="empty-state">No purchase orders for this project.</div>';
+      break;
+    case 'construction':
+      body = wf.claims.length
+        ? `<div class="drawer-section-title">Progress Claims</div>${buildInvestTable('pt-claims',[
+            {key:'biz_claim_no',label:'Claim No.'},{key:'biz_interim_no',label:'Interim'},{key:'biz_gross_claim',label:'Gross',num:true},{key:'biz_net_claim',label:'Net',num:true},{key:'biz_cum_pct',label:'Cum %'},{key:'biz_status',label:'Status',type:'badge'}
+          ], wf.claims)}`
+        : '<div class="empty-state">No progress claims yet.</div>';
+      break;
+    case 'vo':
+      body = wf.vo.length
+        ? `<div class="drawer-section-title">Variation Orders &amp; Approval State</div>${buildInvestTable('pt-vo',[
+            {key:'biz_vo_no',label:'VO No.'},{key:'biz_vo_type',label:'Type',type:'select'},{key:'biz_vo_date',label:'Date'},{key:'biz_net_impact',label:'Net Impact',num:true},{key:'biz_billing_status',label:'Billing',type:'badge'}
+          ], wf.vo)}${wf.milestones.filter(m=>parseInt(m['biz_delay'])>0).length ? `<div class="drawer-section-title">Delayed Milestones</div>${buildInvestTable('pt-ms',[
+            {key:'biz_name',label:'Milestone'},{key:'biz_planned',label:'Planned'},{key:'biz_actual',label:'Actual'},{key:'biz_delay',label:'Delay'},{key:'biz_status',label:'Status',type:'badge'}
+          ], wf.milestones.filter(m=>parseInt(m['biz_delay'])>0))}` : ''}`
+        : '<div class="empty-state">No VOs or blocked milestones.</div>';
+      break;
+    case 'closeout':
+      body = wf.milestones.length
+        ? `<div class="drawer-section-title">Final Account Milestones</div>${buildInvestTable('pt-final',[
+            {key:'biz_name',label:'Milestone'},{key:'biz_planned',label:'Planned'},{key:'biz_actual',label:'Actual'},{key:'biz_delay',label:'Delay'},{key:'biz_status',label:'Status',type:'badge'}
+          ], wf.milestones)}`
+        : '<div class="empty-state">No closeout data.</div>';
+      break;
+    default:
+      body = `<div class="empty-state">This stage has no pending transactions.</div>`;
+  }
+
+  const statusLabel = { completed:'Completed', in_progress:'In Progress', delayed:'Delayed / Blocked', not_started:'Not Started' };
+  $('stage-detail').style.display = 'block';
+  $('stage-detail').innerHTML = `
+    <div style="padding:14px 18px">
+      <div class="sd-head">
+        <strong style="font-size:15px">${s.label}</strong>
+        <span class="sd-status" style="background:${badgeBg[status]}">${statusLabel[status]}</span>
+        ${status==='in_progress' ? '<span class="ctx-chip">IN PROGRESS</span>':''}
+        ${status==='delayed' ? '<span class="tag-risk">BOTTLENECK</span>':''}
+      </div>
+      ${body}
+    </div>`;
+  history.replaceState(null, '', `project-tracker?projectId=${encodeURIComponent(activeProject['biz_project_code']||'')}&stage=${s.id}`);
+}
+
+function renderStageDetail(stageId) {
+  if (stageId) {
+    const idx = ptWorkflow.stages.findIndex(s => s.id === stageId);
+    if (idx >= 0) { ptOpenStage(idx); return; }
+  }
+  // default: show first in-progress stage
+  const idx = ptWorkflow.stages.findIndex(s => (s.delayed||s.blocked) || s.status==='in_progress');
+  if (idx >= 0) ptOpenStage(idx);
+}
+
+
 async function loadCostPlan() {
   try {
     const rows = await hapFetch(WS.costPlan);
@@ -1144,6 +1455,21 @@ function tsSectionDrill(tsId) {
 }
 
 // ========== INIT ==========
+if (window.mermaid) {
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'base',
+    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+    themeVariables: {
+      fontFamily: 'Segoe UI, system-ui, sans-serif',
+      primaryColor: '#c6f6d5',
+      primaryTextColor: '#1a202c',
+      lineColor: '#a0aec0',
+      fontSize: '13px',
+    },
+  });
+}
+
 async function init() {
   await loadUser();
   loadDashboard();
@@ -1156,6 +1482,21 @@ async function init() {
   loadMilestones();
   loadExpenses();
   loadTimesheets();
+
+  // Honor URL section on load (e.g. /project-tracker?projectId=X&stage=Y)
+  const sec = readUrl();
+  if (sec === 'project-tracker') {
+    const sp = new URLSearchParams(location.search).get('projectId');
+    if (sp) {
+      // ensure tracker data loads, then deep-link to that project/stage
+      loadProjectTracker().then(() => {
+        ptSelectProject(sp).then(() => {
+          const stg = new URLSearchParams(location.search).get('stage');
+          if (stg) renderStageDetail(stg);
+        });
+      });
+    }
+  }
 
   // Build filter bars
   const poStatuses = ['Draft','Submitted','Approved','In Transit','Received','Closed','Rejected'];
